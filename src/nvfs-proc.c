@@ -40,6 +40,7 @@ extern struct mutex nvfs_module_mutex;
 
 static int nvfs_modules_show(struct seq_file *m, void *v)
 {
+    TRACE_FUNC();
 	int i;
 	struct module_entry *mod_entry;
 
@@ -60,6 +61,7 @@ static int nvfs_modules_show(struct seq_file *m, void *v)
  */
 static int nvfs_modules_open(struct inode *inode, struct file *file)
 {
+    TRACE_FUNC();
        return single_open(file, nvfs_modules_show, NULL);
 }
 #ifdef HAVE_STRUCT_PROC_OPS
@@ -83,6 +85,7 @@ const struct file_operations nvfs_module_ops = {
 // used by library for parsing
 static int nvfs_version_show(struct seq_file *m, void *v)
 {
+    TRACE_FUNC();
 	unsigned int dvers = nvfs_driver_version();
 	seq_printf(m, "%s: %u.%u\n", "version",
 		nvfs_major_version(dvers), nvfs_minor_version(dvers));
@@ -94,6 +97,7 @@ static int nvfs_version_show(struct seq_file *m, void *v)
  */
 static int nvfs_version_info_open(struct inode *inode, struct file *file)
 {
+    TRACE_FUNC();
 	return single_open(file, nvfs_version_show, NULL);
 }
 
@@ -116,6 +120,7 @@ static const struct file_operations nvfs_version_ops = {
 // used by library for parsing
 static int nvfs_bridge_show(struct seq_file *m, void *v)
 {
+    TRACE_FUNC();
 	struct pci_dev *pdev = NULL;
 	while ((pdev = nvfs_get_next_acs_device(pdev)) != NULL) {
 		seq_printf(m, "%04x:%02x:%02x.%d\n",
@@ -132,6 +137,7 @@ static int nvfs_bridge_show(struct seq_file *m, void *v)
  */
 static int nvfs_bridge_info_open(struct inode *inode, struct file *file)
 {
+    TRACE_FUNC();
 	return single_open(file, nvfs_bridge_show, NULL);
 }
 
@@ -155,6 +161,7 @@ static const struct file_operations nvfs_bridge_ops = {
 // used by nr_devices for parsing
 static int nvfs_devices_show(struct seq_file *m, void *v)
 {
+    TRACE_FUNC();
 	unsigned int ndevs = nvfs_get_device_count();
 	seq_printf(m, "%u\n", ndevs);
 	return 0;
@@ -165,6 +172,7 @@ static int nvfs_devices_show(struct seq_file *m, void *v)
  */
 static int nvfs_devices_info_open(struct inode *inode, struct file *file)
 {
+    TRACE_FUNC();
 	return single_open(file, nvfs_devices_show, NULL);
 }
 
@@ -190,6 +198,7 @@ static const struct file_operations nvfs_devices_ops = {
  */
 static int nvfs_peer_affinity_info_open(struct inode *inode, struct file *file)
 {
+    TRACE_FUNC();
 	return single_open(file, nvfs_peer_affinity_show, NULL);
 }
 #ifdef HAVE_STRUCT_PROC_OPS
@@ -215,6 +224,7 @@ static const struct file_operations nvfs_peer_affinity_ops = {
 
 static int nvfs_pci_distance_map_info_open(struct inode *inode, struct file *file)
 {
+    TRACE_FUNC();
 	return single_open(file, nvfs_peer_distance_show, NULL);
 }
 
@@ -240,6 +250,7 @@ static const struct file_operations nvfs_pci_distance_map_ops = {
  */
 int nvfs_proc_init(void)
 {
+    TRACE_FUNC();
 	if (!proc_mkdir("driver/nvidia-fs", NULL))
 		goto error_dir;
 
@@ -290,6 +301,7 @@ error_dir:
  */
 void nvfs_proc_cleanup(void)
 {
+    TRACE_FUNC();
 	if (remove_proc_subtree("driver/nvidia-fs", NULL) < 0)
 		nvfs_err("remove error for driver/nvidia-fs proc dir\n");
 }

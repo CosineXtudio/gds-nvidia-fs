@@ -85,6 +85,8 @@ extern int nvfs_peer_stats_enabled;
 
 typedef unsigned long long u64;
 
+#define TRACE_FUNC() nvfs_dbg("__trace__ %s:%d\n", __func__, __LINE__)
+
 /*
  * IOCTL structures
  */
@@ -264,6 +266,7 @@ static inline unsigned int get_minor(struct inode *inode) {
 
 static inline bool gpu_page_aligned(unsigned long size)
 {
+    TRACE_FUNC();
 	return ((size & (GPU_PAGE_SIZE - 1)) == 0);
 }
 

@@ -38,6 +38,7 @@ DECLARE_FAULT_ATTR(nvfs_vm_insert_page_error);
 
 void nvfs_init_debugfs(void)
 {
+    TRACE_FUNC();
         dbgfs_root = debugfs_create_dir("nvfs_inject_fault", NULL);
 
         if (!dbgfs_root || IS_ERR(dbgfs_root)) {
@@ -64,6 +65,7 @@ void nvfs_init_debugfs(void)
 
 void nvfs_free_debugfs(void)
 {
+    TRACE_FUNC();
         if (!dbgfs_root)
                 return;
 

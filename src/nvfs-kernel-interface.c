@@ -25,6 +25,7 @@
 
 bool nvfs_check_access(int type, char __user *buf, size_t count)
 {
+    TRACE_FUNC();
 #ifdef HAVE_ACCESS_OK_3_PARAMS
 	{
 		if (type == READ) {
@@ -51,6 +52,7 @@ bool nvfs_check_access(int type, char __user *buf, size_t count)
 
 int nvfs_extend_sg_markers(struct scatterlist **sg)
 {
+    TRACE_FUNC();
 // This is hard coded to 4.18 kernel because of macro NVME_MAX_SEGS. See nvfs-dma.c for more
 // details.
 

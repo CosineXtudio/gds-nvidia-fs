@@ -215,6 +215,7 @@ int nr_modules(void) {
 #ifdef CONFIG_DEBUG_NVFS_BLK
 static void nvfs_print_sglist(struct scatterlist *sglist, int nsegs, struct request *req)
 {
+    TRACE_FUNC();
 	int i = 0, nents = sg_nents(sglist);
         struct scatterlist *sg = NULL;
 
@@ -234,6 +235,7 @@ static void nvfs_print_sglist(struct scatterlist *sglist, int nsegs, struct requ
  */
 static void nvfs_clear_sglist_page(struct scatterlist *sglist)
 {
+    TRACE_FUNC();
 	int i = 0, nents = sg_nents(sglist);
         struct scatterlist *sg;
 	for_each_sg(sglist, sg, nents, i)
@@ -265,6 +267,7 @@ static inline bool nvfs_blk_rq_check(struct request *req) {
 
 static inline bool nvfs_req_payload_supported(struct request *req)
 {
+    TRACE_FUNC();
 #ifdef HAVE_BLK_RQ_PAYLOAD_BYTES
 	if (blk_rq_payload_bytes(req) > (NVME_MAX_SEGS * GPU_PAGE_SIZE))
 		return false;
@@ -277,6 +280,7 @@ static inline bool nvfs_req_payload_supported(struct request *req)
 static inline bool nvfs_is_request_valid(bool *found_gpu_page, bool *found_cpu_page,
 						bool *curr_page_gpu)
 {
+    TRACE_FUNC();
 	if (*curr_page_gpu)
 		*found_gpu_page = true;
 	else
@@ -290,6 +294,7 @@ static inline bool nvfs_is_request_valid(bool *found_gpu_page, bool *found_cpu_p
 
 static inline bool is_gpu_page_contiguous(uint64_t prev_phys_addr, uint64_t curr_phys_addr)
 {
+    TRACE_FUNC();
 	return ((prev_phys_addr + PAGE_SIZE) == curr_phys_addr);
 }
 
@@ -309,6 +314,7 @@ static int nvfs_blk_rq_map_sg_internal(struct request_queue *q,
                               struct scatterlist *iod_sglist,
 			      bool nvme)
 {
+    TRACE_FUNC();
         int nsegs = 0;
         bool found_cpu_page = false, found_gpu_page = false;
         bool curr_page_gpu = false;
@@ -517,6 +523,7 @@ static int nvfs_blk_rq_map_sg(struct request_queue *q,
                               struct request *req,
                               struct scatterlist *iod_sglist)
 {
+    TRACE_FUNC();
 	return nvfs_blk_rq_map_sg_internal(q, req, iod_sglist, false);
 }
 
@@ -524,6 +531,7 @@ static int nvfs_nvme_blk_rq_map_sg(struct request_queue *q,
                               struct request *req,
                               struct scatterlist *iod_sglist)
 {
+    TRACE_FUNC();
 	return nvfs_blk_rq_map_sg_internal(q, req, iod_sglist, true);
 }
 
@@ -544,6 +552,7 @@ static int nvfs_nvme_blk_rq_map_sg(struct request_queue *q,
 static bool nvfs_peek_next_bvec(struct request *req, struct req_iterator *req_iter,
                                 struct bio_vec *bvec)
 {
+    TRACE_FUNC();
 	/* If no more data in current bio, we're done */
 	if (!req_iter->iter.bi_size) {
 		nvfs_dbg("%s: no more data in current bio (bi_size=0)\n", __func__);
@@ -567,6 +576,7 @@ static bool nvfs_peek_next_bvec(struct request *req, struct req_iterator *req_it
  */
 static void nvfs_advance_bvec(struct req_iterator *req_iter, struct bio_vec *bvec)
 {
+    TRACE_FUNC();
 	nvfs_dbg("%s: advancing by %u bytes\n", __func__, bvec->bv_len);
 	bio_advance_iter_single(req_iter->bio, &req_iter->iter, bvec->bv_len);
 }
@@ -580,6 +590,7 @@ static void nvfs_advance_bvec(struct req_iterator *req_iter, struct bio_vec *bve
  */
 static int nvfs_validate_gpu_request(struct request *req, nvfs_mgroup_ptr_t nvfs_mgroup)
 {
+    TRACE_FUNC();
 	if (unlikely(blk_integrity_rq(req))) {
 		nvfs_err("%s:%d cannot handle gpu request with integrity metadata\n",
 				__func__, __LINE__);
@@ -622,6 +633,7 @@ static bool nvfs_check_page_coalescible(uint64_t prev_phys_addr, uint64_t curr_p
                                          unsigned long gpu_page_index,
                                          unsigned int segment_len, unsigned int bvec_len)
 {
+    TRACE_FUNC();
 	/* Check physical contiguity */
 	if((prev_phys_addr + segment_len) != curr_phys_addr)
 		return false;
@@ -650,6 +662,7 @@ static bool nvfs_check_page_coalescible(uint64_t prev_phys_addr, uint64_t curr_p
 static int nvfs_get_gpu_page_info(struct bio_vec *bvec, uint64_t *phys_addr,
                                   unsigned long *gpu_page_index)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup;
 	pgoff_t pgoff;
 	unsigned int page_skip = bvec->bv_offset / PAGE_SIZE;
@@ -727,6 +740,7 @@ static bool nvfs_check_bvec_contiguity(nvfs_mgroup_ptr_t nvfs_mgroup,
                                        uint64_t base_phys_addr,
                                        unsigned int *contiguous_len)
 {
+    TRACE_FUNC();
 	unsigned int page_skip = bvec->bv_offset / PAGE_SIZE;
 	unsigned int offset_in_page = bvec->bv_offset % PAGE_SIZE;
 	unsigned long base_rel_index = NVFS_PAGE_INDEX(bvec->bv_page) % NVFS_MAX_SHADOW_PAGES;
@@ -815,6 +829,7 @@ static void nvfs_coalesce_gpu_pages(struct request *req,
                                     uint64_t *prev_phys_addr,
                                     unsigned long *prev_gpu_page_index)
 {
+    TRACE_FUNC();
 	struct bio_vec bvec;
 	uint64_t curr_phys_addr;
 	unsigned long gpu_page_index;
@@ -939,6 +954,7 @@ static int nvfs_map_next_gpu_segment(struct request *req,
                                      bool is_first_call,
 				     void** cookie)
 {
+    TRACE_FUNC();
 	struct req_iterator *req_iter = &iter->iter;
 	struct bio_vec bvec;
 	nvfs_mgroup_ptr_t nvfs_mgroup = NULL;
@@ -1135,6 +1151,7 @@ static int nvfs_blk_rq_dma_map_iter_start(struct request *req,
                                         struct blk_dma_iter *iter,
 					void **cookie)
 {
+    TRACE_FUNC();
 	int ret;
 
 	nvfs_dbg("%s: ====== NVFS DMA MAP ITER START ====== req=%p\n", __func__, req);
@@ -1185,6 +1202,7 @@ static int nvfs_blk_rq_dma_map_iter_next(struct request *req,
                                         struct dma_iova_state *state,
                                         struct blk_dma_iter *iter)
 {
+    TRACE_FUNC();
 	int ret;
 
 	nvfs_dbg("%s: ====== NVFS DMA MAP ITER NEXT ====== req=%p\n", __func__, req);
@@ -1224,6 +1242,7 @@ static int nvfs_dma_unmap_page(struct device *device,
 		               size_t size,
 		               enum dma_data_direction dir)
 {
+    TRACE_FUNC();
 	if (unlikely(cookie == NULL)) {
 		nvfs_err("%s: nvfs_mgroup passed is NULL\n",
 			__func__);
@@ -1245,6 +1264,7 @@ static int nvfs_dma_map_sg_attrs_internal(struct device *device,
 			         enum dma_data_direction dma_dir,
 			         unsigned long attrs, bool nvme)
 {
+    TRACE_FUNC();
 	int ret, i = 0, nr_gpu_dma = 0, nr_cpu_dma = 0;
 	void *gpu_base_dma = NULL;
 	struct scatterlist *sg = NULL;
@@ -1396,6 +1416,7 @@ static int nvfs_dma_unmap_sg(struct device *device,
                               int nents,
                               enum dma_data_direction dma_dir)
 {
+    TRACE_FUNC();
 	int i = 0, ret;
 	int gpu_segs = 0, cpu_segs = 0;
 	struct scatterlist *sg = NULL;
@@ -1441,6 +1462,7 @@ static int nvfs_dma_map_sg_attrs_nvme(struct device *device,
 			         enum dma_data_direction dma_dir,
 				 unsigned long attrs)
 {
+    TRACE_FUNC();
 	return nvfs_dma_map_sg_attrs_internal(device, sglist, nents, dma_dir, attrs, true);
 }
 
@@ -1472,6 +1494,7 @@ static int nvfs_dma_map_sg_attrs(struct device *device,
 			         enum dma_data_direction dma_dir,
 				 unsigned long attrs)
 {
+    TRACE_FUNC();
 	return nvfs_dma_map_sg_attrs_internal(device, sglist, nents, dma_dir, attrs, false);
 }
 #ifdef NVFS_ENABLE_KERN_RDMA_SUPPORT
@@ -1479,6 +1502,7 @@ static int nvfs_get_gpu_sglist_rdma_info(struct scatterlist *sglist,
 				int nents,
 				struct nvfs_rdma_info *rdma_infop)
 {
+    TRACE_FUNC();
 	struct scatterlist *sg = NULL;
 	struct page *page;
 	nvfs_mgroup_ptr_t nvfs_mgroup = NULL, prev_mgroup = NULL;

@@ -111,6 +111,7 @@ atomic_t nvfs_n_pg_cache_eio;
 
 static void nvfs_reset_gpuinfo_stats(void)
 {
+    TRACE_FUNC();
 	struct nvfs_gpu_stat *gpustat;
 	unsigned int temp = 0;
 
@@ -124,6 +125,7 @@ static void nvfs_reset_gpuinfo_stats(void)
 
 static void nvfs_print_gpuinfo(struct seq_file *m)
 {
+    TRACE_FUNC();
 	struct nvfs_gpu_stat *gpustat;
 	unsigned int temp = 0;
 
@@ -380,6 +382,7 @@ static int nvfs_stats_reset(void) {
 
 static struct nvfs_gpu_stat *nvfs_get_gpustat_unlocked(uint64_t gpu_uuid_hash)
 {
+    TRACE_FUNC();
 	struct nvfs_gpu_stat *gpustat;
 
 	hash_for_each_possible_rcu(nvfs_gpu_stat_hash, gpustat, hash_link, gpu_uuid_hash)
@@ -453,6 +456,7 @@ void nvfs_update_alloc_gpustat(struct nvfs_gpu_args *gpuinfo) {
 void nvfs_update_read_throughput(unsigned long total_bytes,
                                 atomic64_t *stat)
 {
+    TRACE_FUNC();
         int delta;
         int throughput;
 
@@ -479,6 +483,7 @@ void nvfs_update_read_throughput(unsigned long total_bytes,
 void nvfs_update_read_latency(unsigned long avg_latency,
                                 atomic64_t *stat)
 {
+    TRACE_FUNC();
         int delta;
         int average_latency;
 
@@ -511,6 +516,7 @@ void nvfs_update_read_latency(unsigned long avg_latency,
 void nvfs_update_batch_latency(unsigned long avg_latency,
                                 atomic64_t *stat)
 {
+    TRACE_FUNC();
         int delta;
         int average_latency;
 
@@ -544,6 +550,7 @@ void nvfs_update_batch_latency(unsigned long avg_latency,
 void nvfs_update_write_latency(unsigned long avg_latency,
                                 atomic64_t *stat)
 {
+    TRACE_FUNC();
         int delta;
         int average_latency;
 
@@ -576,6 +583,7 @@ void nvfs_update_write_latency(unsigned long avg_latency,
 void nvfs_update_write_throughput(unsigned long total_bytes,
                                 atomic64_t *stat)
 {
+    TRACE_FUNC();
         int delta;
         int throughput;
 
@@ -620,6 +628,7 @@ void nvfs_stat_destroy() {
  */
 static int nvfs_stats_open(struct inode *inode, struct file *file)
 {
+    TRACE_FUNC();
         return single_open(file, nvfs_stats_show, NULL);
 }
 
@@ -628,6 +637,7 @@ static int nvfs_stats_open(struct inode *inode, struct file *file)
  */
 static ssize_t nvfs_stats_clear(struct file *file, const char __user *buf, size_t size, loff_t *ppos)
 {
+    TRACE_FUNC();
 	nvfs_stats_reset();
 	return (ssize_t) size;
 }

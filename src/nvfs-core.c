@@ -111,6 +111,7 @@ static unsigned int nvfs_curr_devices = 1;
 
 static inline long nvfs_count_ops(void)
 {
+    TRACE_FUNC();
 	int i;
 	long sum = 0;
 	for_each_possible_cpu(i)
@@ -120,11 +121,13 @@ static inline long nvfs_count_ops(void)
 
 static inline void nvfs_get_ops(void)
 {
+    TRACE_FUNC();
        this_cpu_inc(nvfs_n_ops);
 }
 
 static inline void nvfs_put_ops(void)
 {
+    TRACE_FUNC();
        this_cpu_dec(nvfs_n_ops);
 }
 
@@ -143,6 +146,7 @@ unsigned int nvfs_get_device_count(void) {
 static inline bool nvfs_transit_state(struct nvfs_gpu_args *gpu_info,
 	bool sync, int from, int to)
 {
+    TRACE_FUNC();
 	bool io_transit = true;
 	nvfs_mgroup_ptr_t nvfs_mgroup = container_of(gpu_info, struct nvfs_io_mgroup,
 				gpu_info);
@@ -206,6 +210,7 @@ static inline bool nvfs_transit_state(struct nvfs_gpu_args *gpu_info,
 
 bool nvfs_io_terminate_requested(struct nvfs_gpu_args *gpu_info, bool callback)
 {
+    TRACE_FUNC();
         int tstate = (callback) ? IO_CALLBACK_END : IO_TERMINATED;
 
        
@@ -256,6 +261,7 @@ bool nvfs_io_terminate_requested(struct nvfs_gpu_args *gpu_info, bool callback)
 
 static void nvfs_io_terminate(struct nvfs_gpu_args *gpu_info, bool callback)
 {
+    TRACE_FUNC();
 	if (gpu_info) {
 		if (nvfs_io_terminate_requested(gpu_info, callback)) {
 			nvfs_mgroup_ptr_t nvfs_mgroup = container_of(gpu_info, struct nvfs_io_mgroup,
@@ -290,6 +296,7 @@ static void nvfs_io_terminate(struct nvfs_gpu_args *gpu_info, bool callback)
  */
 static void nvfs_get_pages_free_callback(void *data)
 {
+    TRACE_FUNC();
 	int ret = 0;
 	nvfs_mgroup_ptr_t nvfs_mgroup = data;
 	struct nvfs_gpu_args *gpu_info = &nvfs_mgroup->gpu_info;
@@ -369,6 +376,7 @@ nvfs_get_dma_address(nvfs_io_t* nvfsio,
 		struct pci_dev *peer,
 		struct nvidia_p2p_dma_mapping **dma_mapping, int *n_dma_chunks)
 {
+    TRACE_FUNC();
 	int ret;
 	struct nvfs_gpu_args *gpu_info;
 	nvfs_mgroup_ptr_t nvfs_mgroup;
@@ -473,6 +481,7 @@ out:
 static struct pci_dev_mapping *nvfs_get_pci_dev_mapping(
 			struct nvfs_gpu_args *gpu_info, int pci_devid)
 {
+    TRACE_FUNC();
 	struct pci_dev_mapping *pci_dev_mapping;
 
 	hash_for_each_possible_rcu(gpu_info->buckets,
@@ -488,6 +497,7 @@ struct nvidia_p2p_dma_mapping*
 nvfs_get_p2p_dma_mapping(struct pci_dev *peer, struct nvfs_gpu_args *gpu_info,
 		struct nvfs_io* nvfsio, int *n_dma_chunks)
 {
+    TRACE_FUNC();
         struct nvidia_p2p_dma_mapping *dma_mapping = NULL;
         struct pci_dev_mapping *pci_dev_mapping;
 	*n_dma_chunks = 0;
@@ -560,6 +570,7 @@ done:
  */
 int nvfs_get_dma(void *device, struct page *page, void **gpu_base_dma, int dma_length)
 {
+    TRACE_FUNC();
         struct nvidia_p2p_dma_mapping *dma_mapping;
         struct pci_dev *peer = device;
         dma_addr_t dma_base_addr, dma_start_addr;
@@ -714,6 +725,7 @@ bad_request:
 
 nvfs_io_sparse_dptr_t nvfs_io_map_sparse_data(nvfs_mgroup_ptr_t nvfs_mgroup)
 {
+    TRACE_FUNC();
         nvfs_ioctl_metapage_ptr_t nvfs_ioctl_mpage_ptr;
         nvfs_io_sparse_dptr_t sparse_ptr;
 	void *kaddr = kmap_atomic(nvfs_mgroup->gpu_info.end_fence_page);
@@ -729,6 +741,7 @@ nvfs_io_sparse_dptr_t nvfs_io_map_sparse_data(nvfs_mgroup_ptr_t nvfs_mgroup)
 void nvfs_io_unmap_sparse_data(nvfs_io_sparse_dptr_t ptr,
 				nvfs_metastate_enum state)
 {
+    TRACE_FUNC();
 	nvfs_ioctl_metapage_ptr_t kaddr = container_of(ptr,
 						struct nvfs_ioctl_metapage,
 						sparse_data);
@@ -738,6 +751,7 @@ void nvfs_io_unmap_sparse_data(nvfs_io_sparse_dptr_t ptr,
 
 void nvfs_io_free(nvfs_io_t* nvfsio, long res)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup = container_of(nvfsio,
 					struct nvfs_io_mgroup, nvfsio);
 	struct nvfs_gpu_args *gpu_info = &nvfs_mgroup->gpu_info;
@@ -867,6 +881,7 @@ static void nvfs_io_complete(struct kiocb *kiocb, long res)
 
 static inline ssize_t nvfs_io_ret(struct kiocb *req, ssize_t ret)
 {
+    TRACE_FUNC();
 	nvfs_io_t* nvfsio = container_of(req,
 					struct nvfs_io, common);
 
@@ -911,16 +926,19 @@ static inline ssize_t nvfs_io_ret(struct kiocb *req, ssize_t ret)
 
 static inline void set_write_flag(struct kiocb *ki)
 {
+    TRACE_FUNC();
 	ki->ki_flags |= IOCB_WRITE;
 }
 
 static inline const char* opstr(int op)
 {
+    TRACE_FUNC();
 	return((op == READ) ? "read" : "write");
 }
 
 static inline bool unsigned_offsets(struct file *file)
 {
+    TRACE_FUNC();
 #ifdef FMODE_UNSIGNED_OFFSET
         return file->f_mode & FMODE_UNSIGNED_OFFSET;
 #else
@@ -931,6 +949,7 @@ static inline bool unsigned_offsets(struct file *file)
 static int nvfs_rw_verify_area(int read_write, struct file *file,
 		char __user *buf, const loff_t *ppos, size_t count)
 {
+    TRACE_FUNC();
         struct inode *inode;
         loff_t pos;
         int retval = -EINVAL;
@@ -976,6 +995,7 @@ static int nvfs_rw_verify_area(int read_write, struct file *file,
 
 static inline bool nvfs_is_sparse(struct file *f)
 {
+    TRACE_FUNC();
      struct inode *inode = file_inode(f);
      loff_t size = i_size_read(inode);
      unsigned int block_size = (1 << 9);
@@ -995,6 +1015,7 @@ static ssize_t
 nvfs_direct_io(int op, struct file *filp, char __user *buf,
 		size_t len, loff_t ppos, nvfs_io_t* nvfsio)
 {
+    TRACE_FUNC();
         struct iovec iov = { .iov_base = buf, .iov_len = len };
         struct iov_iter iter;
         ssize_t ret;
@@ -1069,6 +1090,7 @@ nvfs_direct_io(int op, struct file *filp, char __user *buf,
 
 static int nvfs_open(struct inode *inode, struct file *file)
 {
+    TRACE_FUNC();
 	int ret;
 
 	if (atomic_read(&nvfs_shutdown) == 1)
@@ -1093,6 +1115,7 @@ out:
 
 static int nvfs_close(struct inode *inode, struct file *file)
 {
+    TRACE_FUNC();
 	mutex_lock(&nvfs_module_mutex);
 	nvfs_put_ops();
 	if (nvfs_count_ops() == 0) {
@@ -1107,11 +1130,13 @@ static int nvfs_close(struct inode *inode, struct file *file)
 
 static void nvfs_remove(int pid, struct mm_struct* mm)
 {
+    TRACE_FUNC();
     nvfs_dbg("nvfs_remove\n");
 }
 
 static void nvfs_free_put_endfence_page(struct nvfs_gpu_args *gpu_info)
 {
+    TRACE_FUNC();
 	if (gpu_info->end_fence_page) {
 #ifdef HAVE_PIN_USER_PAGES_FAST
 		unpin_user_page(gpu_info->end_fence_page);
@@ -1128,6 +1153,7 @@ static void nvfs_free_put_endfence_page(struct nvfs_gpu_args *gpu_info)
 static int nvfs_get_endfence_page(nvfs_ioctl_map_t *input_param,
 	struct nvfs_gpu_args *gpu_info)
 {
+    TRACE_FUNC();
 	int ret = -EINVAL;
 	void *end_fence;
 
@@ -1179,6 +1205,7 @@ out:
  */
 static int nvfs_unpin_gpu_pages(struct nvfs_gpu_args *gpu_info)
 {
+    TRACE_FUNC();
 	int ret = 0;
 
 	if (gpu_info) {
@@ -1241,6 +1268,7 @@ static int nvfs_unpin_gpu_pages(struct nvfs_gpu_args *gpu_info)
 static int nvfs_pin_gpu_pages(nvfs_ioctl_map_t *input_param,
 		struct nvfs_gpu_args *gpu_info)
 {
+    TRACE_FUNC();
     	u64 gpu_virt_start;
     	u64 gpu_virt_end;
     	size_t rounded_size;
@@ -1426,6 +1454,7 @@ error:
 
 bool nvfs_free_gpu_info(struct nvfs_gpu_args* gpu_info, bool from_dma)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup = container_of(gpu_info,
 			struct nvfs_io_mgroup,
 			gpu_info);
@@ -1481,6 +1510,7 @@ bool nvfs_free_gpu_info(struct nvfs_gpu_args* gpu_info, bool from_dma)
 static int nvfs_map_gpu_info(nvfs_ioctl_map_t *input_param,
 		struct nvfs_gpu_args *gpu_info)
 {
+    TRACE_FUNC();
 	int ret;
 
 	ret = nvfs_get_endfence_page(input_param, gpu_info);
@@ -1504,6 +1534,7 @@ out:
 
 static int nvfs_map(nvfs_ioctl_map_t *input_param)
 {
+    TRACE_FUNC();
 	int ret = -EINVAL;
 	nvfs_mgroup_ptr_t nvfs_mgroup = NULL;
 	struct nvfs_gpu_args *gpu_info;
@@ -1556,6 +1587,7 @@ error:
 
 static inline int nvfs_check_file_permissions(int op, struct file *file, bool allow_read_on_wronly)
 {
+    TRACE_FUNC();
 	if (op == READ) {
 		if (!(file->f_mode & FMODE_READ)) {
 			if (allow_read_on_wronly) {
@@ -1585,6 +1617,7 @@ static inline int nvfs_check_file_permissions(int op, struct file *file, bool al
  */
 struct nvfs_io* nvfs_io_init(int op, nvfs_ioctl_ioargs_t *ioargs)
 {
+    TRACE_FUNC();
 	int ret = -EINVAL;
 	struct nvfs_io* nvfsio = NULL;
 	struct fd fd;
@@ -1847,6 +1880,7 @@ fd_put:
 static int flush_dirty_pages(struct file *file,
 		loff_t offset, size_t size, nvfs_io_t* nvfsio)
 {
+    TRACE_FUNC();
 	struct inode *inode = file_inode(file);
 	loff_t endbyte;
 	int ret;
@@ -1972,6 +2006,7 @@ static inline bool nvfs_need_fallocate(struct inode *inode) {
 
 long nvfs_io_start_op(nvfs_io_t* nvfsio)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup = container_of(nvfsio,
 						struct nvfs_io_mgroup, nvfsio);
 	struct nvfs_gpu_args  *gpu_info = &nvfs_mgroup->gpu_info;
@@ -2193,6 +2228,7 @@ failed:
 
 static inline int get_rwop(unsigned int ioctl_num)
 {
+    TRACE_FUNC();
 	if (ioctl_num == NVFS_IOCTL_READ)
 		return READ;
 	else if (ioctl_num == NVFS_IOCTL_WRITE)
@@ -2210,6 +2246,7 @@ static inline int get_rwop(unsigned int ioctl_num)
 static long nvfs_ioctl(struct file *file, unsigned int ioctl_num,
 			unsigned long ioctl_param)
 {
+    TRACE_FUNC();
 	int pid = current->tgid;
 	nvfs_ioctl_param_union local_param;
 
@@ -2502,6 +2539,7 @@ static int get_nvidia_driver_version(void){
  */
 static int __init nvfs_init(void)
 {
+    TRACE_FUNC();
 	int i;
 
 	int version= get_nvidia_driver_version();
@@ -2590,6 +2628,7 @@ error:
 
 static void __exit nvfs_exit(void)
 {
+    TRACE_FUNC();
 	int i;
 
 	atomic_set(&nvfs_shutdown, 1);

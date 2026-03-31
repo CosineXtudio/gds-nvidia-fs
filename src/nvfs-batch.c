@@ -70,6 +70,7 @@
  */
 nvfs_batch_io_t* nvfs_io_batch_init(nvfs_ioctl_param_union *input_param)
 {
+    TRACE_FUNC();
 	nvfs_ioctl_batch_ioargs_t *batch_args = &(input_param->batch_ioargs);
         nvfs_batch_io_t *nvfs_batch = NULL; 
         int i, ret = -EINVAL;
@@ -147,6 +148,7 @@ cleanup:
 
 long nvfs_io_batch_submit(nvfs_batch_io_t *nvfs_batch)
 {
+    TRACE_FUNC();
          unsigned i;
          long ret = 0;
          for (i =0; i < nvfs_batch->nents; ++i) {

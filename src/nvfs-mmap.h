@@ -92,6 +92,7 @@ typedef enum nvfs_metastate {
 
 static inline const char *nvfs_io_state_status(int state)
 {
+    TRACE_FUNC();
 	switch (state) {
 #define X(code, name, string) \
 		case name : return #string;

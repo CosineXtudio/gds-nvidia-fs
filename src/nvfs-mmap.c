@@ -55,6 +55,7 @@ static spinlock_t lock ____cacheline_aligned;
 
 static inline bool nvfs_check_process_context(void)
 {
+    TRACE_FUNC();
 	if(irqs_disabled() || 
 			in_interrupt() || 
 			in_atomic() || 
@@ -73,16 +74,19 @@ static inline bool nvfs_check_process_context(void)
 
 void nvfs_mgroup_get_ref(nvfs_mgroup_ptr_t mgroup)
 {
+    TRACE_FUNC();
 	atomic_inc(&mgroup->ref);
 }
 
 bool nvfs_mgroup_put_ref(nvfs_mgroup_ptr_t mgroup)
 {
+    TRACE_FUNC();
 	return atomic_dec_and_test(&mgroup->ref);
 }
 
 static inline nvfs_mgroup_ptr_t nvfs_mgroup_get_unlocked(unsigned long base_index)
 {
+    TRACE_FUNC();
         nvfs_mgroup_ptr_t nvfs_mgroup;
 	struct nvfs_gpu_args *gpu_info;
 
@@ -114,6 +118,7 @@ static inline nvfs_mgroup_ptr_t nvfs_mgroup_get_unlocked(unsigned long base_inde
 
 nvfs_mgroup_ptr_t nvfs_mgroup_get(unsigned long base_index)
 {
+    TRACE_FUNC();
         nvfs_mgroup_ptr_t nvfs_mgroup;
 	rcu_read_lock();
         nvfs_mgroup = nvfs_mgroup_get_unlocked(base_index);
@@ -124,6 +129,7 @@ nvfs_mgroup_ptr_t nvfs_mgroup_get(unsigned long base_index)
 
 static void nvfs_mgroup_free(nvfs_mgroup_ptr_t nvfs_mgroup, bool from_dma)
 {
+    TRACE_FUNC();
         int i;
       	struct nvfs_gpu_args *gpu_info = NULL;
         int nvfs_block_count_per_page = (int) PAGE_SIZE / NVFS_BLOCK_SIZE;
@@ -181,6 +187,7 @@ void nvfs_mgroup_put_callback(nvfs_mgroup_ptr_t nvfs_mgroup)
 */
 static void nvfs_mgroup_put_internal(nvfs_mgroup_ptr_t nvfs_mgroup, bool from_dma)
 {
+    TRACE_FUNC();
         if(nvfs_mgroup == NULL)
                 return;
         nvfs_dbg("nvfs_mgroup_put called %d \n",
@@ -224,6 +231,7 @@ void nvfs_mgroup_put_dma(nvfs_mgroup_ptr_t nvfs_mgroup) {
 
 static nvfs_mgroup_ptr_t nvfs_get_mgroup_from_vaddr_internal(u64 cpuvaddr)
 {
+    TRACE_FUNC();
 	struct page *page = NULL;
 	int ret;
 	unsigned long cur_base_index  = 0;
@@ -302,6 +310,7 @@ out:
 
 nvfs_mgroup_ptr_t nvfs_get_mgroup_from_vaddr(u64 cpuvaddr)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup_s;
 #if 0
 	void *addr;
@@ -346,6 +355,7 @@ out:
  */
 nvfs_mgroup_ptr_t nvfs_mgroup_pin_shadow_pages(u64 cpuvaddr, unsigned long length)
 {
+    TRACE_FUNC();
 	int ret = 0;
 	struct page** pages = NULL;
         unsigned long count, block_count, j, cur_base_index = 0;
@@ -459,6 +469,7 @@ out:
 
 void nvfs_mgroup_unpin_shadow_pages(nvfs_mgroup_ptr_t nvfs_mgroup)
 {
+    TRACE_FUNC();
 	//nvfs_mgroup_check_and_set(nvfs_mgroup, NVFS_IO_FREE, true, false);
         nvfs_mgroup_put(nvfs_mgroup);
 }
@@ -469,6 +480,7 @@ void nvfs_mgroup_unpin_shadow_pages(nvfs_mgroup_ptr_t nvfs_mgroup)
 
 static int nvfs_vma_split(struct vm_area_struct *vma, unsigned long addr)
 {
+    TRACE_FUNC();
 	nvfs_err("ERR: Attempted VMA split, virt %lx, vm_pg_off:%lx  split_start %lx\n",
 			vma->vm_start, vma->vm_pgoff, addr);
         WARN_ON_ONCE(1);
@@ -490,6 +502,7 @@ static int nvfs_vma_mremap(struct vm_area_struct *vma, unsigned long flags)
 
 static void nvfs_vma_open(struct vm_area_struct *vma)
 {
+    TRACE_FUNC();
 
         vma->vm_private_data = NULL;
 	nvfs_err("ERR: NVFS VMA open, virt %lx, vm_pg_off %lx\n",
@@ -499,6 +512,7 @@ static void nvfs_vma_open(struct vm_area_struct *vma)
 
 static void nvfs_vma_close(struct vm_area_struct *vma)
 {
+    TRACE_FUNC();
         nvfs_mgroup_ptr_t nvfs_mgroup;
 	bool callback_invoked = false;
 #ifdef CONFIG_NVFS_STATS
@@ -581,6 +595,7 @@ done:
 
 static nvfs_vma_fault_t nvfs_vma_fault(struct vm_fault *vmf)
 {
+    TRACE_FUNC();
         nvfs_err("ERR: NVFS VMA fault: %p , vmf:%p .\n", vmf->vma, vmf);
         WARN_ON_ONCE(1);
         return 0;
@@ -588,6 +603,7 @@ static nvfs_vma_fault_t nvfs_vma_fault(struct vm_fault *vmf)
 
 static nvfs_vma_fault_t nvfs_page_mkwrite(struct vm_fault *vmf)
 {
+    TRACE_FUNC();
         nvfs_err("ERR: VMA pg_mkwrite: %p vmf:%p .\n", vmf->vma, vmf);
         WARN_ON_ONCE(1);
         return 0;
@@ -595,6 +611,7 @@ static nvfs_vma_fault_t nvfs_page_mkwrite(struct vm_fault *vmf)
 
 static nvfs_vma_fault_t nvfs_pfn_mkwrite(struct vm_fault *vmf)
 {
+    TRACE_FUNC();
         nvfs_err("ERR: VMA pfn_mkwrite: %p vmf:%p .\n", vmf->vma, vmf);
         WARN_ON_ONCE(1);
         return 0;
@@ -616,6 +633,7 @@ static const struct vm_operations_struct nvfs_mmap_ops = {
 
 static int nvfs_mgroup_mmap_internal(struct file *filp, struct vm_area_struct *vma)
 {
+    TRACE_FUNC();
         int ret = -EINVAL, i,j, tries = 10;
         unsigned long length = vma->vm_end - vma->vm_start;
         unsigned long base_index;
@@ -808,6 +826,7 @@ error:
 /* character device mmap method */
 int nvfs_mgroup_mmap(struct file *filp, struct vm_area_struct *vma)
 {
+    TRACE_FUNC();
         /* at offset 0 we map the vmalloc'd area */
         if (vma->vm_pgoff == 0) {
                 nvfs_dbg("mmap %p, file:%p \n", vma, vma->vm_file);
@@ -824,6 +843,7 @@ int nvfs_mgroup_mmap(struct file *filp, struct vm_area_struct *vma)
 
 void nvfs_mgroup_init()
 {
+    TRACE_FUNC();
 	spin_lock_init(&lock);
         hash_init(nvfs_io_mgroup_hash);
 }
@@ -831,6 +851,7 @@ void nvfs_mgroup_init()
 void nvfs_mgroup_check_and_set(nvfs_mgroup_ptr_t nvfs_mgroup, enum nvfs_block_state state, bool validate,
 	bool update_nvfsio)
 {
+    TRACE_FUNC();
         struct nvfs_io_metadata  *nvfs_mpages = nvfs_mgroup->nvfs_metadata;
         nvfs_io_sparse_dptr_t sparse_ptr = NULL;
         int last_sparse_index = -1;
@@ -1003,6 +1024,7 @@ void nvfs_mgroup_check_and_set(nvfs_mgroup_ptr_t nvfs_mgroup, enum nvfs_block_st
 
 static void nvfs_mgroup_fill_mpage(struct page* page, nvfs_mgroup_page_ptr_t nvfs_mdata, nvfs_io_t *nvfsio)
 {
+    TRACE_FUNC();
         BUG_ON(!page);
 	BUG_ON(nvfs_mdata->nvfs_start_magic != NVFS_START_MAGIC);
 	BUG_ON(nvfs_mdata->nvfs_state != NVFS_IO_INIT && nvfs_mdata->nvfs_state != NVFS_IO_DONE);
@@ -1016,6 +1038,7 @@ static void nvfs_mgroup_fill_mpage(struct page* page, nvfs_mgroup_page_ptr_t nvf
 
 int nvfs_mgroup_fill_mpages(nvfs_mgroup_ptr_t nvfs_mgroup, unsigned nr_blocks)
 {
+    TRACE_FUNC();
         struct nvfs_io* nvfsio = &nvfs_mgroup->nvfsio;
         int j;
 	unsigned long blockoff = 0;
@@ -1069,6 +1092,7 @@ int nvfs_mgroup_fill_mpages(nvfs_mgroup_ptr_t nvfs_mgroup, unsigned nr_blocks)
 // eg: page->index relative to base_index (32 + 2) will return 2, 8K
 void nvfs_mgroup_get_gpu_index_and_off(nvfs_mgroup_ptr_t nvfs_mgroup, struct page* page, unsigned long *gpu_index, pgoff_t *offset)
 {
+    TRACE_FUNC();
   unsigned long rel_page_index = (NVFS_PAGE_INDEX(page) % NVFS_MAX_SHADOW_PAGES);
   *gpu_index = nvfs_mgroup->nvfsio.cur_gpu_base_index + (rel_page_index >> PAGE_PER_GPU_PAGE_SHIFT);
   if (PAGE_SIZE < GPU_PAGE_SIZE)
@@ -1077,6 +1101,7 @@ void nvfs_mgroup_get_gpu_index_and_off(nvfs_mgroup_ptr_t nvfs_mgroup, struct pag
 
 uint64_t nvfs_mgroup_get_gpu_physical_address(nvfs_mgroup_ptr_t nvfs_mgroup, struct page* page)
 {
+    TRACE_FUNC();
 	struct nvfs_gpu_args *gpu_info = &nvfs_mgroup->gpu_info;
 	unsigned long gpu_page_index = ULONG_MAX;
 	pgoff_t pgoff = 0;
@@ -1169,6 +1194,7 @@ static nvfs_mgroup_ptr_t __nvfs_mgroup_from_page(struct page* page, bool check_d
 
 nvfs_mgroup_ptr_t nvfs_mgroup_from_page_range(struct page* page, int nblocks, unsigned int start_offset)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup = NULL;
 	nvfs_mgroup_page_ptr_t nvfs_mpage = NULL, prev_mpage = NULL;
         struct nvfs_io* nvfsio = NULL;
@@ -1237,6 +1263,7 @@ int nvfs_mgroup_metadata_set_dma_state(struct page* page,
 				       unsigned int bv_len,
 				       unsigned int bv_offset)
 {
+    TRACE_FUNC();
 	unsigned int start_block = 0;
 	unsigned int end_block = 0;
 	nvfs_mgroup_page_ptr_t nvfs_mpage;
@@ -1285,6 +1312,7 @@ int nvfs_mgroup_metadata_set_dma_state(struct page* page,
 
 nvfs_mgroup_ptr_t nvfs_mgroup_from_page(struct page* page)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup = NULL;
 	nvfs_mgroup_page_ptr_t nvfs_mpage;
 	nvfs_mgroup = __nvfs_mgroup_from_page(page, false);
@@ -1317,6 +1345,7 @@ nvfs_mgroup_ptr_t nvfs_mgroup_from_page(struct page* page)
  */
 bool nvfs_is_gpu_page(struct page *page)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup;
 
 	nvfs_mgroup = __nvfs_mgroup_from_page(page, false);
@@ -1344,6 +1373,7 @@ bool nvfs_is_gpu_page(struct page *page)
  */
 int nvfs_check_gpu_page_and_error(struct page *page, unsigned int offset, unsigned int len)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup;
 
 	nvfs_mgroup = __nvfs_mgroup_from_page(page, true);
@@ -1370,6 +1400,7 @@ int nvfs_check_gpu_page_and_error(struct page *page, unsigned int offset, unsign
  */
 unsigned int nvfs_gpu_index(struct page *page)
 {
+    TRACE_FUNC();
 	u64 pdevinfo;
 	nvfs_mgroup_ptr_t nvfs_mgroup;
 
@@ -1399,5 +1430,6 @@ unsigned int nvfs_gpu_index(struct page *page)
  */
 unsigned int nvfs_device_priority(struct device *dev, unsigned int gpu_index)
 {
+    TRACE_FUNC();
 	return nvfs_get_gpu2peer_distance(dev, gpu_index);
 }

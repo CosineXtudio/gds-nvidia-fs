@@ -112,6 +112,7 @@ static struct nvfs_rank_data gpu_rank_matrix[MAX_GPU_DEVS][MAX_PEER_DEVS];
 // hash function for pci devinfo
 static inline u64 hashfn(u64 value)
 {
+    TRACE_FUNC();
 	static u32 hash_seed = 0;
 	return jhash_2words((uint32_t)value , (uint32_t)(value >> 32), hash_seed);
 }
@@ -122,6 +123,7 @@ unsigned int _create_index_entry(uint64_t pcidevinfo,
                                  uint64_t index_table[],
 				 unsigned int max_elements)
 {
+    TRACE_FUNC();
 	u32 i = 0;
 	u32 idx = hashfn(pcidevinfo) % max_elements;
 	while (i < max_elements) {
@@ -141,6 +143,7 @@ unsigned int _lookup_index_entry(uint64_t pcidevinfo,
                                  uint64_t index_table[],
                                  unsigned int max_elements)
 {
+    TRACE_FUNC();
 	u32 i = 0;
 	u32 idx = hashfn(pcidevinfo) % max_elements;
 	while (i < max_elements) {
@@ -163,6 +166,7 @@ unsigned int _lookup_index_entry(uint64_t pcidevinfo,
  */
 static unsigned int nvfs_create_gpu_hash_entry(uint64_t pdevinfo)
 {
+    TRACE_FUNC();
 	if (!pdevinfo)
 		return UINT_MAX;
 	return _create_index_entry(pdevinfo, gpu_info_table, MAX_GPU_DEVS);
@@ -176,6 +180,7 @@ static unsigned int nvfs_create_gpu_hash_entry(uint64_t pdevinfo)
  */
 static unsigned int nvfs_create_peer_hash_entry(uint64_t pdevinfo)
 {
+    TRACE_FUNC();
 	if (!pdevinfo)
 		return UINT_MAX;
 	return _create_index_entry(pdevinfo, peer_info_table, MAX_PEER_DEVS);
@@ -188,6 +193,7 @@ static unsigned int nvfs_create_peer_hash_entry(uint64_t pdevinfo)
  */
 unsigned int nvfs_get_gpu_hash_index(uint64_t pdevinfo)
 {
+    TRACE_FUNC();
 	return _lookup_index_entry(pdevinfo, gpu_info_table, MAX_GPU_DEVS);
 }
 
@@ -198,6 +204,7 @@ unsigned int nvfs_get_gpu_hash_index(uint64_t pdevinfo)
  */
 uint64_t nvfs_lookup_gpu_hash_index_entry(unsigned int index)
 {
+    TRACE_FUNC();
 	return (index < MAX_GPU_DEVS) ? gpu_info_table[index] : 0;
 }
 
@@ -208,6 +215,7 @@ uint64_t nvfs_lookup_gpu_hash_index_entry(unsigned int index)
  */
 static unsigned int nvfs_get_peer_hash_index(uint64_t pdevinfo)
 {
+    TRACE_FUNC();
 	return _lookup_index_entry(pdevinfo, peer_info_table, MAX_PEER_DEVS);
 }
 
@@ -218,6 +226,7 @@ static unsigned int nvfs_get_peer_hash_index(uint64_t pdevinfo)
  */
 uint64_t nvfs_lookup_peer_hash_index_entry(unsigned int index)
 {
+    TRACE_FUNC();
 	return (index < MAX_PEER_DEVS) ? peer_info_table[index] : 0;
 }
 
@@ -842,6 +851,7 @@ int nvfs_peer_distance_show(struct seq_file *m, void *data) {
  */
 int nvfs_peer_affinity_show(struct seq_file *m, void *v)
 {
+    TRACE_FUNC();
 	unsigned int i, j;
 
 	if (!nvfs_peer_stats_enabled)

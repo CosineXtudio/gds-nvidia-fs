@@ -33,6 +33,7 @@
 int nvfs_set_rdma_reg_info_to_mgroup(
 		nvfs_ioctl_set_rdma_reg_info_args_t* rdma_reg_info_args)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup = NULL;
 	struct nvfs_gpu_args* gpu_info;
 	struct nvfs_rdma_info* rdma_infop;
@@ -116,6 +117,7 @@ extern int nvfs_get_gpu_sglist_rdma_info(struct scatterlist *, int, struct nvfs_
 int nvfs_get_rdma_reg_info_from_mgroup(
 		nvfs_ioctl_get_rdma_reg_info_args_t* rdma_reg_info_args)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup = NULL;
 	struct nvfs_rdma_info* rdma_infop = NULL;
         uint64_t shadow_buf_size;
@@ -208,6 +210,7 @@ int nvfs_get_rdma_reg_info_from_mgroup(
 int nvfs_clear_rdma_reg_info_in_mgroup(
 		nvfs_ioctl_clear_rdma_reg_info_args_t* rdma_clear_info_args)
 {
+    TRACE_FUNC();
 	nvfs_mgroup_ptr_t nvfs_mgroup = NULL;
 	
 	nvfs_dbg("%s CPU addr received %llx\n", __func__, rdma_clear_info_args->cpuvaddr);	

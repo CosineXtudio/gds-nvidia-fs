@@ -24,16 +24,19 @@
 
 static inline unsigned long div64_safe(unsigned long sum, unsigned long nr)
 {
+    TRACE_FUNC();
 	return nr ? div64_ul(sum, nr) : 0;
 }
 
 static inline u64 jiffies_now(void)
 {
+    TRACE_FUNC();
 	return get_jiffies_64();
 }
 
 static inline s64 ktime_ns_delta(const ktime_t later, const ktime_t earlier)
 {
+    TRACE_FUNC();
     return ktime_to_ns(ktime_sub(later, earlier));
 }
 
@@ -130,11 +133,13 @@ extern const struct file_operations nvfs_stats_fops;
 
 static inline void nvfs_stat(atomic_t *stat)
 {
+    TRACE_FUNC();
         atomic_inc(stat);
 }
 
 static inline void nvfs_stat_d(atomic_t *stat)
 {
+    TRACE_FUNC();
 	#ifdef CONFIG_NVFS_DEBUG_STATS
 	if (unlikely(atomic_sub_return(1L, stat) < 0)) {
 		pr_err("encountered -ve stat :%d\n", atomic_read(stat)); 
@@ -147,21 +152,25 @@ static inline void nvfs_stat_d(atomic_t *stat)
 
 static inline void nvfs_stat64_reset(atomic64_t *stat)
 {
+    TRACE_FUNC();
 	atomic64_set(stat, 0);
 }
 
 static inline void nvfs_stat_reset(atomic_t *stat)
 {
+    TRACE_FUNC();
 	atomic_set(stat, 0);
 }
 
 static inline void nvfs_stat64(atomic64_t *stat)
 {
+    TRACE_FUNC();
         atomic64_inc(stat);
 }
 
 static inline void nvfs_stat64_d(atomic64_t *stat)
 {
+    TRACE_FUNC();
 	#ifdef CONFIG_NVFS_DEBUG_STATS
 	if (unlikely(atomic64_sub_return(1LL, stat) < 0)) {
 #if LINUX_VERSION_CODE <  KERNEL_VERSION(5,0,0)
@@ -178,31 +187,37 @@ static inline void nvfs_stat64_d(atomic64_t *stat)
 
 static inline void nvfs_stat64_add(long i, atomic64_t *stat)
 {
+    TRACE_FUNC();
         atomic64_add(i, stat);
 }
 
 static inline void nvfs_stat64_sub(long i, atomic64_t *stat)
 {
+    TRACE_FUNC();
         atomic64_sub(i, stat);
 }
 
 static inline s64 nvfs_stat64_read(atomic64_t *stat)
 {
+    TRACE_FUNC();
 	return atomic64_read(stat);
 }
 
 static inline void nvfs_stat64_jiffies(unsigned long *now)
 {
+    TRACE_FUNC();
 	*now = jiffies_now();
 }
 
 static inline u64 nvfs_stat64_jiffies2usec(atomic64_t *stat)
 {
+    TRACE_FUNC();
 	return jiffies64_to_nsecs(atomic64_read(stat))/1000UL;
 }
 
 static inline void nvfs_stat64_ktime(ktime_t *now)
 {
+    TRACE_FUNC();
         *now = ktime_get();
 }
 

@@ -36,6 +36,7 @@ extern struct fault_attr nvfs_vm_insert_page_error;
 
 static inline bool nvfs_fault_trigger(void *fault)
 {
+    TRACE_FUNC();
         return should_fail(fault, 1);
 }
 
